@@ -27,6 +27,12 @@ const info = <const>{
       pretty_name: "Slider starting value",
       default: 50,
     },
+    /** Show the starting position of the slider */
+      show_slider_start: {
+      type: jspsych.ParameterType.BOOL,
+      pretty_name: "Show slider starting position",
+      default: true,
+    },
     /** Sets the step of the slider */
     step: {
       type: ParameterType.INT,
@@ -115,8 +121,13 @@ class HtmlSliderResponsePlugin implements JsPsychPlugin<Info> {
       html += "width:auto;";
     }
     html += '">';
-    html +=
-      '<input type="range" class="jspsych-slider" value="' +
+    // show or hide the slider at the beginning
+    if (trial.show_slider_start === false) {
+      html += '<input type="range" class="jspsych-slider-unclicked" '
+    } else {
+      html += '<input type="range" class="jspsych-slider" '
+    }  
+    html += 'value="' +
       trial.slider_start +
       '" min="' +
       trial.min +
@@ -205,6 +216,16 @@ class HtmlSliderResponsePlugin implements JsPsychPlugin<Info> {
       this.jsPsych.finishTrial(trialdata);
     };
 
+    // if marker was hidden then make it visible by changing class
+    if (trial.show_slider_start === false) {
+      document
+        .getElementById("jspsych-html-slider-response-response")
+        .addEventListener('click', function(e){
+            e.target.classList.add('jspsych-slider'); 
+            e.target.classList.remove('jspsych-slider-unclicked'); 
+        })
+      }
+    
     display_element
       .querySelector("#jspsych-html-slider-response-next")
       .addEventListener("click", () => {
